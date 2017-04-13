@@ -1,0 +1,14 @@
+*.h
+*.cpp
+*.swp
+*.swo
+target
+.classpath
+.project
+.settings
+*.iml
+.idea
+*.bak
+pom.xml.versionsBackup
+*/pom.xml.versionsBackup
+sonar-project.properties
