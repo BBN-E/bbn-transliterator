@@ -10,7 +10,7 @@
 
     <groupId>com.bbn.serif</groupId>
     <artifactId>transliteration-all</artifactId>
-    <version>1.0.0-SNAPSHOT</version>
+    <version>1.0.0</version>
     <packaging>pom</packaging>
 
     <name>Transliteration code</name>
@@ -58,6 +58,6 @@
 
     <scm>
         <developerConnection>scm:git:http://e-gitlab.bbn.com/text-group/transliteration.git</developerConnection>
-        <tag>HEAD</tag>
+        <tag>transliteration-all-1.0.0</tag>
     </scm>
 </project>
