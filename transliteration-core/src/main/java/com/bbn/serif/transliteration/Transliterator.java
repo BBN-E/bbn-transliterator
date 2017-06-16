@@ -81,7 +81,7 @@ public interface Transliterator {
     public static final String CUSTOM_MAPPINGS_PARAM =
         "com.bbn.serif.transliterator.customMappings";
 
-    protected FromParamsModule(final Parameters parameters) {
+    public FromParamsModule(final Parameters parameters) {
       super(parameters);
     }
 

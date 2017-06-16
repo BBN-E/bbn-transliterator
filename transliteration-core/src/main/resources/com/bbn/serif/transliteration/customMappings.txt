@@ -423,7 +423,7 @@
 
 # Uyghur
 ::s ئا ::t a ::lcode uig
-::s ە ::t e ::lcode uig
+::s ه ::t e ::lcode uig ::comment changed from ە to conform to BBN's preferred Uyghur transliteration
 ::s ئې ::t e ::lcode uig ::latinplus ë
 ::s ې ::t e ::lcode uig ::latinplus ë
 ::s ئە ::t e ::lcode uig
