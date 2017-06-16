@@ -119,6 +119,8 @@ public abstract class SubstringMapper implements DefaultTransliterator.Translite
     static class Builder extends ImmutableSubstringMapper.LoadSubstringMappingsResult.Builder {}
   }
 
+  // constants shared between URomanSubstringMappingsLoader and code for loading
+  // Unicode data overwrite file
   private static final Pattern STRIP_DOUBLE_QUOTES = Pattern.compile("^\"(.*)\"$");
   private static final Pattern STRIP_SINGLE_QUOTES = Pattern.compile("^'(.*)'$");
 
@@ -126,137 +128,180 @@ public abstract class SubstringMapper implements DefaultTransliterator.Translite
   private static final String TARGET_FIELD = "t";
   // currently ignored
   private static final String NUMERIC_FIELD = "num";
+  private static final String LATIN_PLUS_FIELD = "latinplus";
   private static final String LANGUAGE_CODE_FIELD = "lcode";
   private static final String COMMENT_FIELD = "comment";
 
-  public static LoadSubstringMappingsResult loadURomanSubstringMappings(final Iterable<CharSource> substringMappingsFiles)
-      throws IOException {
-    final SubstringMapper.Builder generalMapper = new SubstringMapper.Builder();
-    final SortedMap<String, SubstringMapper.Builder> languageSpecificMappers = new TreeMap<>();
 
-    for (final CharSource substringMappingsFile : substringMappingsFiles) {
-      // sample line
-      // ::s Ҥ ::t Ng ::comment Cyrillic capital ligature EN GHE
-      int lineNo = 0;
-      for (final String line : substringMappingsFile.readLines()) {
-        ++lineNo;
+  @Value.Immutable
+  @TextGroupImmutable
+  public abstract static class URomanSubstringMappingsLoader {
 
-        try {
-          parseLine(line, generalMapper, languageSpecificMappers);
-        } catch (Exception e) {
-          throw new BadMappingsFileException("Exception while parsing line " + lineNo + " of "
-              + "custom mappings file " + substringMappingsFile + ". Cannot parse line:" + line);
+    @Value.Default
+    public boolean preferExtendedLatinMappings() {
+      return true;
+    }
+
+    public static class Builder
+        extends ImmutableSubstringMapper.URomanSubstringMappingsLoader.Builder {
+
+    }
+
+    public LoadSubstringMappingsResult load(final Iterable<CharSource> substringMappingsFiles)
+        throws IOException {
+      final SubstringMapper.Builder generalMapper = new SubstringMapper.Builder();
+      final SortedMap<String, SubstringMapper.Builder> languageSpecificMappers = new TreeMap<>();
+
+      for (final CharSource substringMappingsFile : substringMappingsFiles) {
+        // sample line
+        // ::s Ҥ ::t Ng ::comment Cyrillic capital ligature EN GHE
+        int lineNo = 0;
+        for (final String line : substringMappingsFile.readLines()) {
+          ++lineNo;
+
+          try {
+            parseLine(line, generalMapper, languageSpecificMappers);
+          } catch (Exception e) {
+            throw new BadMappingsFileException("Exception while parsing line " + lineNo + " of "
+                + "custom mappings file " + substringMappingsFile + ". Cannot parse line:" + line);
+          }
         }
       }
-    }
 
-    final ImmutableMap.Builder<String, SubstringMapper> languageSpecificMappersBuilt =
-        ImmutableMap.builder();
-    for (final Map.Entry<String, Builder> e : languageSpecificMappers.entrySet()) {
-      final Builder languageSpecificMapperBuilder = e.getValue();
-      languageSpecificMappersBuilt.put(e.getKey(), languageSpecificMapperBuilder.build());
-    }
-    return new LoadSubstringMappingsResult.Builder()
-        .generalMapper(generalMapper.build())
-        .languageSpecificMappers(languageSpecificMappersBuilt.build())
-        .build();
-  }
-
-  public static SubstringMapper loadURomanCJKMappings(final CharSource source) throws IOException {
-    final SubstringMapper.Builder cjkBuilder = new SubstringMapper.Builder();
-    for (final String line : source.readLines()) {
-      // comment or blank line
-      if (line.startsWith("#") || line.isEmpty()) {
-        continue;
+      final ImmutableMap.Builder<String, SubstringMapper> languageSpecificMappersBuilt =
+          ImmutableMap.builder();
+      for (final Map.Entry<String, SubstringMapper.Builder> e : languageSpecificMappers
+          .entrySet()) {
+        final SubstringMapper.Builder languageSpecificMapperBuilder = e.getValue();
+        languageSpecificMappersBuilt.put(e.getKey(), languageSpecificMapperBuilder.build());
       }
-
-      final List<String> parts = StringUtils.onTabs().splitToList(line);
-
-      if (parts.size() != 2) {
-        throw new RuntimeException("Bad line in CJK mappings file: " + line);
-      }
-
-      cjkBuilder.putStringMappings(unicodeFriendly(parts.get(0)),
-          new SubstringMapping.Builder()
-              .transliteration(unicodeFriendly(parts.get(1))).score(1.0)
-              .comment("CJK").build());
-    }
-    return cjkBuilder.build();
-  }
-
-
-  private static final double PER_CHARACTER_CUSTOM_MAPPING_SCORE = 1.1;
-  private static final double LANGAUGE_SPECIFIC_BOOST = 1.1;
-
-  private static void parseLine(final String line, final Builder generalMapper,
-      final SortedMap<String, Builder> languageSpecificMappers)
-      throws BadMappingsFileException {
-    if (line.isEmpty() || line.startsWith("#")) {
-      return;
+      return new LoadSubstringMappingsResult.Builder()
+          .generalMapper(generalMapper.build())
+          .languageSpecificMappers(languageSpecificMappersBuilt.build())
+          .build();
     }
 
-    final ImmutableMultimap<String, String> parts = URomanFileFormat.parseColonDelimitedLine(line);
-    final String source = Iterables.getOnlyElement(parts.get(SOURCE_FIELD)).replaceAll("\\s*$", "");
-
-    if (!parts.containsKey(TARGET_FIELD)) {
-      // there are some entries with no target which only specify numeric mappings. We
-      // currently skip these
-      return;
-    }
-
-    String target = Iterables.getOnlyElement(parts.get(TARGET_FIELD)).replaceAll("\\s*$", "");
-
-    final Matcher stripDoubleQuotesMatcher = STRIP_DOUBLE_QUOTES.matcher(target);
-    if (stripDoubleQuotesMatcher.matches()) {
-      target = stripDoubleQuotesMatcher.group(1);
-    }
-    final Matcher stripSingleQuotesMatcher = STRIP_SINGLE_QUOTES.matcher(target);
-    if (stripSingleQuotesMatcher.matches()) {
-      target = stripSingleQuotesMatcher.group(1);
-    }
-
-    if (parts.containsKey(NUMERIC_FIELD) && target.isEmpty()) {
-      // this is a temporary hack - until we have proper handling of numbers we do a direct
-      // string translation to the provided numeric value, which will sometimes be wrong
-      // see issue #13
-      target = Iterables.getOnlyElement(parts.get(NUMERIC_FIELD));
-    }
-
-    final Collection<String> comments = parts.get(COMMENT_FIELD);
-    final Optional<String> comment;
-    if (comments.isEmpty()) {
-      comment = Optional.absent();
-    } else {
-      comment = Optional.of(StringUtils.SemicolonJoiner.join(comments));
-    }
-
-    final Collection<String> languageCodes = parts.get(LANGUAGE_CODE_FIELD);
-
-    // this is a temporary hack to encourage longer matches - see issue #12
-    final double score =
-        Math.pow(1.1, unicodeFriendly(source).lengthInCodePoints()) *
-            PER_CHARACTER_CUSTOM_MAPPING_SCORE * StringUtils.unicodeFriendly(source)
-            .lengthInCodePoints();
-
-    if (!languageCodes.isEmpty()) {
-      for (final String languageCode : languageCodes) {
-        final String trimmedLanguageCode = languageCode.trim();
-        final Builder langSpecificMapper;
-        if (!languageSpecificMappers.containsKey(trimmedLanguageCode)) {
-          languageSpecificMappers .put(trimmedLanguageCode, langSpecificMapper = new Builder());
-        } else {
-          langSpecificMapper = languageSpecificMappers.get(trimmedLanguageCode);
+    public SubstringMapper loadURomanCJKMappings(final CharSource source)
+        throws IOException {
+      final SubstringMapper.Builder cjkBuilder = new SubstringMapper.Builder();
+      for (final String line : source.readLines()) {
+        // comment or blank line
+        if (line.startsWith("#") || line.isEmpty()) {
+          continue;
         }
-        langSpecificMapper.putStringMappings(unicodeFriendly(source),
+
+        final List<String> parts = StringUtils.onTabs().splitToList(line);
+
+        if (parts.size() != 2) {
+          throw new RuntimeException("Bad line in CJK mappings file: " + line);
+        }
+
+        cjkBuilder.putStringMappings(unicodeFriendly(parts.get(0)),
             new SubstringMapping.Builder()
-                .transliteration(unicodeFriendly(target)).score(
-                LANGAUGE_SPECIFIC_BOOST * score)
-                .comment(comment + " [lang: " + trimmedLanguageCode + "]").build());
+                .transliteration(unicodeFriendly(parts.get(1))).score(1.0)
+                .comment("CJK").build());
       }
-    } else {
-      generalMapper.putStringMappings(unicodeFriendly(source),
-          new SubstringMapping.Builder()
-              .transliteration(unicodeFriendly(target)).score(score).comment(comment).build());
+      return cjkBuilder.build();
+    }
+
+
+    private static final double PER_CHARACTER_CUSTOM_MAPPING_SCORE = 1.1;
+    private static final double LANGAUGE_SPECIFIC_BOOST = 1.1;
+
+    // sample line
+    // ::s Ҥ ::t Ng ::comment Cyrillic capital ligature EN GHE
+    private static void parseLine(final String line, final SubstringMapper.Builder generalMapper,
+        final SortedMap<String, SubstringMapper.Builder> languageSpecificMappers)
+        throws BadMappingsFileException {
+      if (line.isEmpty() || line.startsWith("#")) {
+        return;
+      }
+
+      final ImmutableMultimap<String, String> parts =
+          URomanFileFormat.parseColonDelimitedLine(line);
+      final String source =
+          Iterables.getOnlyElement(parts.get(SOURCE_FIELD)).replaceAll("\\s*$", "");
+
+      final Optional<String> target = parseTarget(parts);
+
+      if (!target.isPresent()) {
+        // there are some entries with no target which only specify numeric mappings. We
+        // currently skip these
+        return;
+      }
+
+      final Collection<String> comments = parts.get(COMMENT_FIELD);
+      final Optional<String> comment;
+      if (comments.isEmpty()) {
+        comment = Optional.absent();
+      } else {
+        comment = Optional.of(StringUtils.SemicolonJoiner.join(comments));
+      }
+
+      final Collection<String> languageCodes = parts.get(LANGUAGE_CODE_FIELD);
+
+      // this is a temporary hack to encourage longer matches - see issue #12
+      final double score =
+          Math.pow(1.1, unicodeFriendly(source).lengthInCodePoints()) *
+              PER_CHARACTER_CUSTOM_MAPPING_SCORE * StringUtils.unicodeFriendly(source)
+              .lengthInCodePoints();
+
+      if (!languageCodes.isEmpty()) {
+        for (final String languageCode : languageCodes) {
+          final String trimmedLanguageCode = languageCode.trim();
+          final SubstringMapper.Builder langSpecificMapper;
+          if (!languageSpecificMappers.containsKey(trimmedLanguageCode)) {
+            languageSpecificMappers
+                .put(trimmedLanguageCode, langSpecificMapper = new SubstringMapper.Builder());
+          } else {
+            langSpecificMapper = languageSpecificMappers.get(trimmedLanguageCode);
+          }
+          langSpecificMapper.putStringMappings(unicodeFriendly(source),
+              new SubstringMapping.Builder()
+                  .transliteration(unicodeFriendly(target.get())).score(
+                  LANGAUGE_SPECIFIC_BOOST * score)
+                  .comment(comment + " [lang: " + trimmedLanguageCode + "]").build());
+        }
+      } else {
+        generalMapper.putStringMappings(unicodeFriendly(source),
+            new SubstringMapping.Builder()
+                .transliteration(unicodeFriendly(target.get())).score(score).comment(comment)
+                .build());
+      }
+    }
+
+    private static Optional<String> parseTarget(final ImmutableMultimap<String, String> parts) {
+
+      String target;
+      if (parts.containsKey(NUMERIC_FIELD)) {
+        // this is a temporary hack - until we have proper handling of numbers we do a direct
+        // string translation to the provided numeric value, which will sometimes be wrong
+        // see issue #13
+        target = Iterables.getOnlyElement(parts.get(NUMERIC_FIELD));
+      } else if (parts.containsKey(LATIN_PLUS_FIELD)) {
+        // the basic mappings in the standard uroman data files (e.g. customMappings.txt,
+        // arabicMappings.txt) use only lower ASCII.  It is frequently more readable to use
+        // "extended ASCII" characters with diacritics. These are provided as alternatives
+        // marked as "latinplus"
+        target = Iterables.getOnlyElement(parts.get(LATIN_PLUS_FIELD));
+      } else if (parts.containsKey(TARGET_FIELD)) {
+        target = Iterables.getOnlyElement(parts.get(TARGET_FIELD));
+      } else {
+        return Optional.absent();
+      }
+
+      target = target.replaceAll("\\s*$", "");
+
+      final Matcher stripDoubleQuotesMatcher = STRIP_DOUBLE_QUOTES.matcher(target);
+      if (stripDoubleQuotesMatcher.matches()) {
+        target = stripDoubleQuotesMatcher.group(1);
+      }
+      final Matcher stripSingleQuotesMatcher = STRIP_SINGLE_QUOTES.matcher(target);
+      if (stripSingleQuotesMatcher.matches()) {
+        target = stripSingleQuotesMatcher.group(1);
+      }
+
+      return Optional.of(target);
     }
   }
 
@@ -290,14 +335,18 @@ public abstract class SubstringMapper implements DefaultTransliterator.Translite
       return;
     }
 
-    final ImmutableMultimap<String, String> parts = URomanFileFormat.parseColonDelimitedLine(line);
-    final String source = new String(new int[] {Integer.parseInt(Iterables.getOnlyElement(parts.get(UNICODE_DATA_OVERWRITE_SOURCE_FIELD)).replaceAll("\\s*$", ""), 16)}, 0, 1);
+    final ImmutableMultimap<String, String> parts =
+        URomanFileFormat.parseColonDelimitedLine(line);
+    final String source = new String(new int[]{Integer.parseInt(
+        Iterables.getOnlyElement(parts.get(UNICODE_DATA_OVERWRITE_SOURCE_FIELD))
+            .replaceAll("\\s*$", ""), 16)}, 0, 1);
 
     if (!parts.containsKey(UNICODE_DATA_OVERWRITE_TARGET_FIELD)) {
       return;
     }
 
-    String target = Iterables.getOnlyElement(parts.get(UNICODE_DATA_OVERWRITE_TARGET_FIELD)).replaceAll("\\s*$", "");
+    String target = Iterables.getOnlyElement(parts.get(UNICODE_DATA_OVERWRITE_TARGET_FIELD))
+        .replaceAll("\\s*$", "");
 
     final Matcher stripDoubleQuotesMatcher = STRIP_DOUBLE_QUOTES.matcher(target);
     if (stripDoubleQuotesMatcher.matches()) {
@@ -329,14 +378,14 @@ public abstract class SubstringMapper implements DefaultTransliterator.Translite
             PER_CHARACTER_OVERWRITE_MAPPING_SCORE * StringUtils.unicodeFriendly(source)
             .lengthInCodePoints();
 
-
-      mapper.putStringMappings(unicodeFriendly(source),
-          new SubstringMapping.Builder()
-              .transliteration(unicodeFriendly(target)).score(score).comment(comment).build());
+    mapper.putStringMappings(unicodeFriendly(source),
+        new SubstringMapping.Builder()
+            .transliteration(unicodeFriendly(target)).score(score).comment(comment).build());
 
   }
 
-  static class BadMappingsFileException extends IOException {
+  public static class BadMappingsFileException extends IOException {
+
     public BadMappingsFileException(String msg) {
       super(msg);
     }

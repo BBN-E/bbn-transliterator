@@ -80,6 +80,8 @@ public interface Transliterator {
         "com.bbn.serif.transliterator.suppressDefaultCJKMappings";
     public static final String CUSTOM_MAPPINGS_PARAM =
         "com.bbn.serif.transliterator.customMappings";
+    public static final String PREFER_BASIC_ASCII =
+        "com.bbn.serif.transliterator.preferBasicAscii";
 
     public FromParamsModule(final Parameters parameters) {
       super(parameters);
@@ -100,7 +102,9 @@ public interface Transliterator {
     @GeneralTransliterator
     Transliterator getGeneralTransliterator(Optional<SubstringMapper.LoadSubstringMappingsResult> customMappings,
         @UnicodeDataOverwriteMappings SubstringMapper unicodeOverwriteMappings,
-        Script.CodePointToScriptMapper scriptMapper) throws IOException {
+        Script.CodePointToScriptMapper scriptMapper,
+        @TransliteratorSubstringMappingLoaderP SubstringMapper.URomanSubstringMappingsLoader mappingsLoader)
+        throws IOException {
       final DefaultTransliterator.Builder generalTransliterator = new DefaultTransliterator.Builder()
           .scriptMapper(scriptMapper)
           .putRuleBlocksBySequenceNumber(DefaultTransliterator.INDEPENDENT_INITIAL_STEP,
@@ -125,7 +129,7 @@ public interface Transliterator {
         log.info("Using default CJK transliterations");
         generalTransliterator.putRuleBlocksBySequenceNumber(
             DefaultTransliterator.INDEPENDENT_INITIAL_STEP,
-            SubstringMapper.loadURomanCJKMappings(Resources.asCharSource(
+            mappingsLoader.loadURomanCJKMappings(Resources.asCharSource(
             Resources.getResource(Transliterator.class, "pinyin.txt"), UTF_8)));
       }
       return generalTransliterator.build();
@@ -168,12 +172,34 @@ public interface Transliterator {
           UTF_8));
     }
 
+    @Qualifier
+    @Target({ElementType.FIELD, ElementType.PARAMETER, ElementType.METHOD})
+    @Retention(RetentionPolicy.RUNTIME)
+    @interface TransliteratorSubstringMappingLoaderP {
+
+    }
+
+    /**
+     * See{@link com.bbn.serif.transliteration.SubstringMapper.URomanSubstringMappingsLoader}
+     */
+
+    @Provides
+    @TransliteratorSubstringMappingLoaderP
+    SubstringMapper.URomanSubstringMappingsLoader getSubstringMappingLoader() {
+      final boolean preferBasicAscii = params().getOptionalBoolean(PREFER_BASIC_ASCII).or(false);
+
+      return new SubstringMapper.URomanSubstringMappingsLoader.Builder()
+          .preferExtendedLatinMappings(!preferBasicAscii).build();
+    }
+
     /**
      * Loads various files giving hints on how to map from one writing system to another. See
      * the module's class Javadoc for details.
      */
     @Provides
-    Optional<SubstringMapper.LoadSubstringMappingsResult> getCustomMappings() throws IOException {
+    Optional<SubstringMapper.LoadSubstringMappingsResult> getCustomMappings(
+        @TransliteratorSubstringMappingLoaderP SubstringMapper.URomanSubstringMappingsLoader mappingsLoader)
+        throws IOException {
       final List<CharSource> mappingsFiles = new ArrayList<>();
 
       if (!params().getOptionalBoolean(SUPPRESS_DEFAULT_MANUAL_MAPPINGS_PARAM).or(false)) {
@@ -193,7 +219,7 @@ public interface Transliterator {
       }
 
       if (!mappingsFiles.isEmpty()) {
-        return Optional.of(SubstringMapper.loadURomanSubstringMappings(mappingsFiles));
+        return Optional.of(mappingsLoader.load(mappingsFiles));
       } else {
         log.info("Using no transliteration table files");
         return Optional.absent();
