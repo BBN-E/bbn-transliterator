@@ -443,6 +443,7 @@
 ::s ئۈ ::t ue ::lcode uig ::latinplus ü
 ::s ۈ ::t ue ::lcode uig ::latinplus ü
 ::s ۋ ::t w ::lcode uig
+::s ئ ::t   ::lcode uig ::comment changed from ە to conform to BBN's preferred Uyghur transliteration
 
 # Maldivian
 ::s ް ::t ::comment thaana sukun
