@@ -212,9 +212,16 @@ final class TransliterationChart {
     if (finalStep.score() > Double.NEGATIVE_INFINITY) {
       final List<String> parts = new ArrayList<>();
       Scored<ChartEdge> curStep = finalStep;
-      while (curStep.item().startPosition() > 0) {
-        parts.add(curStep.item().spanTransliteration());
-        curStep = bestStepToPosition.get(curStep.item().startPosition());
+      try {
+        while (curStep.item().startPosition() > 0) {
+          parts.add(curStep.item().spanTransliteration());
+          curStep = bestStepToPosition.get(curStep.item().startPosition());
+        }
+      }catch(NullPointerException exc){
+        // In certain cases curStep.item().startPosition() will result in a NullPointerException.
+        // This is dependent on the input file, but the cause has not yet been identified. Until
+        // the problem has been discovered, this catch acts as a sort of hacked together solution.
+        return Optional.absent();
       }
       parts.add(curStep.item().spanTransliteration());
 

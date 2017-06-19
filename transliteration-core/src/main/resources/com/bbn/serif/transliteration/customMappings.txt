@@ -423,12 +423,13 @@
 
 # Uyghur
 ::s ئا ::t a ::lcode uig
+::s ە ::t e ::lcode uig ::comment changed  to conform to BBN's preferred Uyghur transliteration
 ::s ه ::t e ::lcode uig ::comment changed from ە to conform to BBN's preferred Uyghur transliteration
-::s نگ ::t n'g ::lcode uig ::comment changed from ە to conform to BBN's preferred Uyghur transliteration
-::s ئې ::t e ::lcode uig ::latinplus ë
-::s ې ::t e ::lcode uig ::latinplus ë
+::s نگ ::t n'g ::lcode uig ::comment changed from g to conform to BBN's preferred Uyghur transliteration
+::s ئې ::t e ::lcode uig ::latinplus é ::comment changed from ë to conform to BBN's preferred Uyghur transliteration
+::s ې ::t e ::lcode uig ::latinplus é ::comment changed from ë to conform to BBN's preferred Uyghur transliteration
 ::s ئە ::t e ::lcode uig
-::s يە ::t e ::lcode uig
+::s يە ::t ye ::lcode uig ::comment changed from e to conform to BBN's preferred Uyghur transliteration
 ::s ئى ::t i ::lcode uig
 ::s ى ::t i ::lcode uig
 ::s ئو ::t o ::lcode uig
@@ -443,7 +444,8 @@
 ::s ئۈ ::t ue ::lcode uig ::latinplus ü
 ::s ۈ ::t ue ::lcode uig ::latinplus ü
 ::s ۋ ::t w ::lcode uig
-::s ئ ::t   ::lcode uig ::comment changed from ە to conform to BBN's preferred Uyghur transliteration
+::s ئ ::t   ::lcode uig ::comment changed to conform to BBN's preferred Uyghur transliteration
+::s اﷲ ::t allah ::lcode uig ::comment changed  to conform to BBN's preferred Uyghur transliteration
 
 # Maldivian
 ::s ް ::t ::comment thaana sukun
