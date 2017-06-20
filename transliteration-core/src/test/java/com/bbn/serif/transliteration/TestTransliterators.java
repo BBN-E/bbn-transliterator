@@ -194,6 +194,12 @@ public class TestTransliterators {
     testAgainstURomanOutput(transliteratorFor("zho"), "zho");
   }
 
+  @Test
+  public void punctuationTest() throws IOException {
+    testAgainstURomanOutput(transliteratorFor(""), "punctuation");
+    testAgainstURomanOutput(transliteratorFor(""), "lowline");
+  }
+
   public void testAgainstURomanOutput(Transliterator transliterator, String testName) throws IOException {
     final UnicodeFriendlyString input =
         unicodeFriendly(Resources.asCharSource(Resources.getResource(TestTransliterators.class,

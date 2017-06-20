@@ -201,7 +201,7 @@ enum TransliterateByUnicodeCharacterName implements DefaultTransliterator.Transl
   private static final Pattern LETTER_PATTERN_4 = Pattern.compile("^(Y[AEIOU]+)[^AEIOU].*$");
   private static final Pattern LETTER_PATTERN_5 = Pattern.compile("^([AEIOU]+)[^AEIOU]+[AEIOU].*");
 
-  // //    $char_name =~ s/^(Y)[AEIOU].*/$1/i if $orig_char_name =~ /\b(?:BENGALI|DEVANAGARI|GURMUKHI|GUJARATI|KANNADA|MALAYALAM|MODI|MYANMAR|ORIYA|TAMIL|TELUGU|TIBETAN)\b.*\bLETTER YA\b/;
+  // //    $char_name =~ s/^(Y)[AEIOU].*/$1/i if $orig_char_name =~ /\b(?:BENGALI|DEVANAGARI|GURMUKHI|GUJARATI|KANNA_A|MALAYALAM|MODI|MYANMAR|ORIYA|TAMIL|TELUGU|TIBETAN)\b.*\bLETTER YA\b/;
   private static final ImmutableSet<String> YA_WORDS = ImmutableSet.of(
       "BENGALI", "DEVANAGARI", "GURMUKHI", "GUJARATI", "KANNADA", "MALAYALAM", "MODI", "MYANMAR",
       "ORIYA", "TAMIL", "TELUGU", "TIBETAN");
@@ -328,8 +328,8 @@ enum TransliterateByUnicodeCharacterName implements DefaultTransliterator.Transl
           .put("ASTERISK", "*")
           .put("PERCENT SIGN", "%")
           .put("COMMERCIAL AT", "@")
-          .put("SOLIDUS", "/")
-          .put("REVERSE SOLIDUS", "\\").build();
+          .put("REVERSE SOLIDUS", "\\")
+          .put("SOLIDUS", "/").build();
 
   private static final ImmutableMap<String, String> START_PUNCTUATION_PATTERNS =
       ImmutableMap.of(
@@ -356,7 +356,14 @@ enum TransliterateByUnicodeCharacterName implements DefaultTransliterator.Transl
   private static final ImmutableMap<String, String> CONNECTOR_PUNCTUATION_PATTERNS =
       // empty string matches everything
       // we just use a map for consistency
-      ImmutableMap.of("", "-");
+      ImmutableMap.of(
+          "", "-");
+
+  private static final ImmutableMap<String, String> LOW_LINE_PATTERNS =
+      // empty string matches everything
+      // we just use a map for consistency
+      ImmutableMap.of(
+          "LOW_LINE", "_");
 
   private static final ImmutableMap<String, String> ENCLOSING_MARK_PATTERNS =
       // TODO: we might want to eventually support the Cyrillic combining number signs, issue #14
@@ -369,7 +376,11 @@ enum TransliterateByUnicodeCharacterName implements DefaultTransliterator.Transl
     final Map<String, String> patternToResult;
     switch (Character.getType(codepoint)) {
       case Character.CONNECTOR_PUNCTUATION:
-        patternToResult = CONNECTOR_PUNCTUATION_PATTERNS;
+        if (codepoint == 0x0005F) {
+          patternToResult = LOW_LINE_PATTERNS;
+        } else {
+          patternToResult = CONNECTOR_PUNCTUATION_PATTERNS;
+        }
         break;
       case Character.INITIAL_QUOTE_PUNCTUATION:
         patternToResult = INITIAL_QUOTE_PATTERNS;
@@ -405,4 +416,3 @@ enum TransliterateByUnicodeCharacterName implements DefaultTransliterator.Transl
     return StringUtils.codepointToString(codepoint);
   }
 }
-
