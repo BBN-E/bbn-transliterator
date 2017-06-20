@@ -328,8 +328,8 @@ enum TransliterateByUnicodeCharacterName implements DefaultTransliterator.Transl
           .put("ASTERISK", "*")
           .put("PERCENT SIGN", "%")
           .put("COMMERCIAL AT", "@")
-          .put("SOLIDUS", "/")
-          .put("REVERSE SOLIDUS", "\\").build();
+          .put("REVERSE SOLIDUS", "\\")
+          .put("SOLIDUS", "/").build();
 
   private static final ImmutableMap<String, String> START_PUNCTUATION_PATTERNS =
       ImmutableMap.of(
@@ -354,9 +354,12 @@ enum TransliterateByUnicodeCharacterName implements DefaultTransliterator.Transl
           "DOUBLE", "\"");
 
   private static final ImmutableMap<String, String> CONNECTOR_PUNCTUATION_PATTERNS =
-      // empty string matches everything
-      // we just use a map for consistency
-      ImmutableMap.of("", "-");
+      ImmutableMap.of(
+          // preserve underscores
+          "LOW LINE", "_",
+          // empty string matches everything
+          // we just use a map for consistency
+          "", "-");
 
   private static final ImmutableMap<String, String> ENCLOSING_MARK_PATTERNS =
       // TODO: we might want to eventually support the Cyrillic combining number signs, issue #14
@@ -405,4 +408,3 @@ enum TransliterateByUnicodeCharacterName implements DefaultTransliterator.Transl
     return StringUtils.codepointToString(codepoint);
   }
 }
-

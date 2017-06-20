@@ -194,6 +194,13 @@ public class TestTransliterators {
     testAgainstURomanOutput(transliteratorFor("zho"), "zho");
   }
 
+  @Test
+  public void punctuationTest() throws IOException {
+    // test _ things are preserved
+    assertEquals("_-",
+        transliteratorFor("").transliterate(unicodeFriendly("_-")).utf16CodeUnits());
+  }
+
   public void testAgainstURomanOutput(Transliterator transliterator, String testName) throws IOException {
     final UnicodeFriendlyString input =
         unicodeFriendly(Resources.asCharSource(Resources.getResource(TestTransliterators.class,

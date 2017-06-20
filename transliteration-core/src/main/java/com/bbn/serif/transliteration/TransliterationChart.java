@@ -194,6 +194,10 @@ final class TransliterationChart {
    */
   @SuppressWarnings("ConstantConditions")
   public Optional<UnicodeFriendlyString> bestDecoding() {
+    if (string().isEmpty()) {
+      return Optional.of(string());
+    }
+
     // backpointers - what is the most recent edge on our best path up to the given position?
     final List<Scored<ChartEdge>> bestStepToPosition = new ArrayList<>();
     for (int i = 0; i<=string.lengthInCodePoints(); ++i) {
@@ -212,10 +216,10 @@ final class TransliterationChart {
     if (finalStep.score() > Double.NEGATIVE_INFINITY) {
       final List<String> parts = new ArrayList<>();
       Scored<ChartEdge> curStep = finalStep;
-      while (curStep.item().startPosition() > 0) {
-        parts.add(curStep.item().spanTransliteration());
-        curStep = bestStepToPosition.get(curStep.item().startPosition());
-      }
+        while (curStep.item().startPosition() > 0) {
+          parts.add(curStep.item().spanTransliteration());
+          curStep = bestStepToPosition.get(curStep.item().startPosition());
+        }
       parts.add(curStep.item().spanTransliteration());
 
       Collections.reverse(parts);

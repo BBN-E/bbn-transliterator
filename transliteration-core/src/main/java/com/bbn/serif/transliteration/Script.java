@@ -248,6 +248,9 @@ abstract class Script {
 
     private ImmutableSet<Script> scriptsForCodepointInternal(final int codePoint) {
       String charName = Character.getName(codePoint);
+      if (charName == null) {
+        return ImmutableSet.of();
+      }
       charName = STRIP_SUFFIXES_PATTERN.matcher(charName).replaceAll("");
       while (!charName.isEmpty()) {
         if (scriptsByName().containsKey(charName)) {
