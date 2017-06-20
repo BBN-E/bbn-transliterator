@@ -201,7 +201,7 @@ enum TransliterateByUnicodeCharacterName implements DefaultTransliterator.Transl
   private static final Pattern LETTER_PATTERN_4 = Pattern.compile("^(Y[AEIOU]+)[^AEIOU].*$");
   private static final Pattern LETTER_PATTERN_5 = Pattern.compile("^([AEIOU]+)[^AEIOU]+[AEIOU].*");
 
-  // //    $char_name =~ s/^(Y)[AEIOU].*/$1/i if $orig_char_name =~ /\b(?:BENGALI|DEVANAGARI|GURMUKHI|GUJARATI|KANNA_A|MALAYALAM|MODI|MYANMAR|ORIYA|TAMIL|TELUGU|TIBETAN)\b.*\bLETTER YA\b/;
+  // //    $char_name =~ s/^(Y)[AEIOU].*/$1/i if $orig_char_name =~ /\b(?:BENGALI|DEVANAGARI|GURMUKHI|GUJARATI|KANNADA|MALAYALAM|MODI|MYANMAR|ORIYA|TAMIL|TELUGU|TIBETAN)\b.*\bLETTER YA\b/;
   private static final ImmutableSet<String> YA_WORDS = ImmutableSet.of(
       "BENGALI", "DEVANAGARI", "GURMUKHI", "GUJARATI", "KANNADA", "MALAYALAM", "MODI", "MYANMAR",
       "ORIYA", "TAMIL", "TELUGU", "TIBETAN");
