@@ -212,6 +212,8 @@ enum TransliterateByUnicodeCharacterName implements DefaultTransliterator.Transl
   private static final int SUSPICIOUS_LENGTH = 6;
 
   private static Optional<String> codepointToStringInternal(int codepoint) {
+    // Issue: in certain cases , such as codepoint = 64472, Arabic Letter U Final Form, the regular
+    // return value will be incorrect.
     if (Character.isDigit(codepoint)) {
       return Optional.of(Integer.toString(Character.digit(codepoint, 10)));
     }
