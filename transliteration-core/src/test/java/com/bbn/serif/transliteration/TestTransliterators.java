@@ -196,8 +196,9 @@ public class TestTransliterators {
 
   @Test
   public void punctuationTest() throws IOException {
-    testAgainstURomanOutput(transliteratorFor(""), "punctuation");
-    testAgainstURomanOutput(transliteratorFor(""), "lowline");
+    // test _ things are preserved
+    assertEquals("_-",
+        transliteratorFor("").transliterate(unicodeFriendly("_-")).utf16CodeUnits());
   }
 
   public void testAgainstURomanOutput(Transliterator transliterator, String testName) throws IOException {

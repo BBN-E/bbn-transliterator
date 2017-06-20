@@ -356,16 +356,12 @@ enum TransliterateByUnicodeCharacterName implements DefaultTransliterator.Transl
           "DOUBLE", "\"");
 
   private static final ImmutableMap<String, String> CONNECTOR_PUNCTUATION_PATTERNS =
-      // empty string matches everything
-      // we just use a map for consistency
       ImmutableMap.of(
+          // preserve underscores
+          "LOW LINE", "_",
+          // empty string matches everything
+          // we just use a map for consistency
           "", "-");
-
-  private static final ImmutableMap<String, String> LOW_LINE_PATTERNS =
-      // empty string matches everything
-      // we just use a map for consistency
-      ImmutableMap.of(
-          "LOW_LINE", "_");
 
   private static final ImmutableMap<String, String> ENCLOSING_MARK_PATTERNS =
       // TODO: we might want to eventually support the Cyrillic combining number signs, issue #14
@@ -378,11 +374,7 @@ enum TransliterateByUnicodeCharacterName implements DefaultTransliterator.Transl
     final Map<String, String> patternToResult;
     switch (Character.getType(codepoint)) {
       case Character.CONNECTOR_PUNCTUATION:
-        if (codepoint == 0x0005F) {
-          patternToResult = LOW_LINE_PATTERNS;
-        } else {
-          patternToResult = CONNECTOR_PUNCTUATION_PATTERNS;
-        }
+        patternToResult = CONNECTOR_PUNCTUATION_PATTERNS;
         break;
       case Character.INITIAL_QUOTE_PUNCTUATION:
         patternToResult = INITIAL_QUOTE_PATTERNS;
