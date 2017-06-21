@@ -3,7 +3,7 @@
     <parent>
         <artifactId>text-group-bom</artifactId>
         <groupId>com.bbn.bue</groupId>
-        <version>16.4.0</version>
+        <version>17.9.0</version>
     </parent>
 
     <modelVersion>4.0.0</modelVersion>
