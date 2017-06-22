@@ -203,6 +203,7 @@ abstract class Script {
     }
 
 
+    @Override
     public final ImmutableSet<Script> scriptsForCodepoint(int codePoint) {
       try {
         return cache.get(codePoint);
@@ -290,6 +291,7 @@ abstract class Script {
       return data().get(offset.asInt());
     }
 
+    @Override
     public final boolean startsNewScript(CharOffset offset) {
       return offset.asInt() == 0 || Sets
           .intersection(data().get(offset.asInt()), data().get(offset.shiftedCopy(-1).asInt()))
@@ -326,6 +328,7 @@ abstract class Script {
       }
     }
 
+    @Override
     public boolean isAbugidaVowelForSomeScript(CharOffset offset, String vowel) {
       final String lowercaseVowel = vowel.toLowerCase(Locale.ENGLISH);
       for (final Script script : scriptsForOffset(offset)) {

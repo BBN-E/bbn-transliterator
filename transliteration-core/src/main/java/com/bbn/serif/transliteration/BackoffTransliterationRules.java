@@ -15,6 +15,7 @@ enum BackoffTransliterationRules implements DefaultTransliterator.Transliteratio
 
   private static final double IDENTITY_TRANSLITERATION_SCORE = 0.1;
 
+  @Override
   public void applyToChart(TransliterationChart chart) {
     for (int codePointPos = 0, codeUnitPos = 0;
          codeUnitPos < chart.string().utf16CodeUnits().length(); ++codePointPos) {

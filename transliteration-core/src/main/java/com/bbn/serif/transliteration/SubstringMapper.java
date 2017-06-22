@@ -75,6 +75,7 @@ public abstract class SubstringMapper implements DefaultTransliterator.Translite
     }
   }
 
+  @Override
   public void applyToChart(TransliterationChart chart) {
     final UnicodeFriendlyString ufs = chart.string();
     // simple but slow implementation

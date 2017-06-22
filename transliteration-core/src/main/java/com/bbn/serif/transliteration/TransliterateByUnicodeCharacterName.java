@@ -26,6 +26,8 @@ import java.util.regex.Pattern;
  * Transliterate source characters by looking up their Unicode names and
  * applying various transformations.
  */
+// user-visible state is immutable. "cache" is used for performance and is thread-safe.
+@SuppressWarnings("ImmutableEnumChecker")
 enum TransliterateByUnicodeCharacterName implements DefaultTransliterator.TransliterationRuleBlock {
   INSTANCE;
 
