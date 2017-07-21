@@ -184,7 +184,17 @@ public class TestTransliterators {
 
   @Test
   public void uyghurTest() throws IOException {
-    testAgainstURomanOutput(transliteratorFor("uig"), "uig");
+    final Transliterator uigTransliterator = transliteratorFor("uig");
+    testAgainstURomanOutput(uigTransliterator, "uig");
+    // we need to *not* transliterate certain punctuation for Arabic in order to
+    // match our old training data :-(
+    assertTransliterationEquals("،", "،", uigTransliterator);
+    assertTransliterationEquals("؛", "؛", uigTransliterator);
+    assertTransliterationEquals("؟", "؟", uigTransliterator);
+    assertTransliterationEquals("٪", "٪", uigTransliterator);
+    assertTransliterationEquals("٫", "٫", uigTransliterator);
+    assertTransliterationEquals("٬", "٬", uigTransliterator);
+    assertTransliterationEquals("ـ", "ـ", uigTransliterator);
   }
 
   // needs handling of numbers, issue #3
@@ -199,6 +209,12 @@ public class TestTransliterators {
     // test _ things are preserved
     assertEquals("_-",
         transliteratorFor("").transliterate(unicodeFriendly("_-")).utf16CodeUnits());
+  }
+
+  private static void assertTransliterationEquals(String reference, String toTransliterate,
+      Transliterator transliterator) {
+    assertEquals(reference, transliterator.transliterate(
+        unicodeFriendly(toTransliterate)).utf16CodeUnits());
   }
 
   public void testAgainstURomanOutput(Transliterator transliterator, String testName) throws IOException {
