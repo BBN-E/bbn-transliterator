@@ -21,6 +21,13 @@
                 <artifactId>appassembler-maven-plugin</artifactId>
                 <configuration>
                     <programs>
+                        <program>
+                            <mainClass>com.bbn.serif.transliteration.RawTextTransliterator</mainClass>
+                            <id>rawTextTransliterator</id>
+                            <jvmSettings>
+                                <maxMemorySize>2g</maxMemorySize>
+                            </jvmSettings>
+                        </program>
                     </programs>
                 </configuration>
             </plugin>
