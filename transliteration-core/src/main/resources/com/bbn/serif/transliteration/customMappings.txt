@@ -446,6 +446,15 @@
 ::s ۋ ::t w ::lcode uig
 ::s ئ ::t   ::lcode uig ::comment changed to conform to BBN's preferred Uyghur transliteration
 ::s اﷲ ::t allah ::lcode uig ::comment changed  to conform to BBN's preferred Uyghur transliteration
+# these Uyghur mappings are added to block default Arabic transliterations in order to match our
+# old transliterator because we need to match our NI training data from the 2016 evaluation
+::s ، ::t ، ::comment ARABIC COMMA ::lcode uig
+::s ؛ ::t ؛ ::comment ARABIC SEMICOLON ::lcode uig
+::s ؟ ::t ؟ ::comment ARABIC QUESTION MARK ::lcode uig
+::s ٪ ::t ٪ ::comment ARABIC PERCENT SIGN ::lcode uig
+::s ٫ ::t ٫ ::comment ARABIC DECIMAL SEPARATOR ::lcode uig
+::s ٬ ::t ٬ ::comment ARABIC THOUSANDS SEPARATOR ::lcode uig
+::s ـ ::t ـ ::comment ARABIC TATWEEL ::lcode uig
 
 # Maldivian
 ::s ް ::t ::comment thaana sukun
