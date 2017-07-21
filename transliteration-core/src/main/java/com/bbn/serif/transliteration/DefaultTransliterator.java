@@ -23,7 +23,7 @@ import org.immutables.value.Value;
 abstract class DefaultTransliterator implements Transliterator {
   /**
    * Sequence number for steps which only add things to the chart without examining its contents
-   * and which should be applid early in processing.
+   * and which should be applied early in processing.
    */
   public static final int INDEPENDENT_INITIAL_STEP = 10000;
 
