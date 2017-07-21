@@ -1,5 +1,7 @@
 package com.bbn.serif.transliteration;
 
+import com.bbn.bue.common.StringNormalizer;
+import com.bbn.bue.common.StringNormalizers;
 import com.bbn.bue.common.TextGroupImmutable;
 import com.bbn.bue.common.UnicodeFriendlyString;
 import com.bbn.bue.common.collections.MapUtils;
@@ -24,6 +26,15 @@ abstract class DefaultTransliterator implements Transliterator {
    * and which should be applid early in processing.
    */
   public static final int INDEPENDENT_INITIAL_STEP = 10000;
+
+  /**
+   * What normalizer, if any, to apply to Strings before transliteration. By default, this is
+   * Unicode NFC normalization.
+   */
+  @Value.Default
+  StringNormalizer preTransliterationNormalizer() {
+    return StringNormalizers.toNfc();
+  }
 
   abstract Script.CodePointToScriptMapper scriptMapper();
   abstract ImmutableMultimap<Integer, TransliterationRuleBlock> ruleBlocksBySequenceNumber();
