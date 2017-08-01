@@ -8,6 +8,7 @@ import com.google.common.io.CharSink;
 import com.google.common.io.Files;
 import com.google.common.io.LineProcessor;
 import com.google.inject.Guice;
+import com.google.inject.Injector;
 import com.google.inject.Key;
 import com.google.inject.TypeLiteral;
 
@@ -25,6 +26,7 @@ import java.io.Writer;
 import javax.annotation.Nonnull;
 
 import static com.bbn.bue.common.StringUtils.unicodeFriendly;
+import static com.bbn.bue.common.parameters.Parameters.joinNamespace;
 
 /**
  * Transliterates plain text files. Run with no arguments to see usage.
@@ -34,6 +36,8 @@ public final class RawTextTransliterator {
   private static final Logger log = LoggerFactory.getLogger(RawTextTransliterator.class);
 
   private static final String NAMESPACE = "com.bbn.nlp.transliteration";
+  private static final String DEFAULT_TRANSLITERATOR_ALLOWED =
+      joinNamespace(NAMESPACE, "fallbackToDefaultTransliterator");
 
   private RawTextTransliterator() {
     throw new UnsupportedOperationException();
@@ -116,13 +120,23 @@ public final class RawTextTransliterator {
   private static Transliterator transliteratorForLanguage(final String langCode,
       final Parameters additionalParameters) {
 
+    final Injector transliteratorInjector =
+        Guice.createInjector(new Transliterator.FromParamsModule(additionalParameters));
+
     final SetMultimap<String, Transliterator> langCodeToTransliterators =
-        Guice.createInjector(new Transliterator.FromParamsModule(additionalParameters)).getInstance(
+        transliteratorInjector.getInstance(
             Key.get(new TypeLiteral<SetMultimap<String, Transliterator>> () {},
                 Transliterator.Iso6392ToTransliterator.class));
 
-    return Transliterators.requestUniqueTransliteratorForLanguageCode(langCode,
-        langCodeToTransliterators);
+    if (additionalParameters.getOptionalBoolean(DEFAULT_TRANSLITERATOR_ALLOWED).or(false)) {
+      final Transliterator generalTransliterator = transliteratorInjector.getInstance(
+          Key.get(Transliterator.class, Transliterator.GeneralTransliterator.class));
+      return Transliterators.requestUniqueTransliteratorForLanguageCode(langCode,
+          langCodeToTransliterators, generalTransliterator);
+    } else {
+      return Transliterators.requestUniqueTransliteratorForLanguageCode(langCode,
+          langCodeToTransliterators);
+    }
   }
 
 

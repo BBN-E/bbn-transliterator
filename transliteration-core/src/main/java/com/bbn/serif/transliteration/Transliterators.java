@@ -4,6 +4,7 @@ import com.bbn.bue.common.StringNormalizer;
 import com.bbn.bue.common.StringUtils;
 import com.bbn.bue.common.TextGroupImmutable;
 
+import com.google.common.base.Optional;
 import com.google.common.collect.SetMultimap;
 
 import org.immutables.value.Value;
@@ -55,41 +56,47 @@ public final class Transliterators {
   public static Transliterator requestUniqueTransliteratorForLanguageCode(
       String iso6392LanguageCode,
       SetMultimap<String, Transliterator> iso6392ToLanguageMap) {
-
-    final Set<Transliterator> registeredTransliterators =
-        iso6392ToLanguageMap.get(iso6392LanguageCode);
-    if (registeredTransliterators.size() == 1) {
-      return getOnlyElement(registeredTransliterators);
-    } else if (registeredTransliterators.isEmpty()) {
-      throw new RuntimeException("No transliterators registered for "
-          + iso6392LanguageCode + ". Transliterators are registered for "
-          + iso6392ToLanguageMap.keySet());
-    } else {
-      throw new RuntimeException("Multiple transliterators are registered for "
-          + iso6392LanguageCode + ". You will need to use a custom module to "
-          + "determine which to use");
-    }
+    return requestUniqueTransliteratorForLanguageCode(iso6392LanguageCode, iso6392ToLanguageMap,
+        Optional.<Transliterator>absent());
   }
 
   /**
    * Gets the unique transliterator for a given language code, throwing a {@link RuntimeException}
    * if there are multiple transliterators registered. If no transliterators are registered it
-   * returns a general transliterator
+   * returns the provided default transliterator (which should typically be whatever is bound with
+   * the annotation {@link Transliterator.GeneralTransliterator}.
    */
   public static Transliterator requestUniqueTransliteratorForLanguageCode(
       String iso6392LanguageCode,
-      SetMultimap<String, Transliterator> iso6392ToLanguageMap, Transliterator generalTransliterator) {
+      SetMultimap<String, Transliterator> iso6392ToLanguageMap,
+      Transliterator defaultTransliterator) {
+    return requestUniqueTransliteratorForLanguageCode(iso6392LanguageCode, iso6392ToLanguageMap,
+        Optional.of(defaultTransliterator));
+  }
 
+  /**
+   * Shared implementation to {@link #requestUniqueTransliteratorForLanguageCode(String,
+   * SetMultimap)} and {@link #requestUniqueTransliteratorForLanguageCode(String, SetMultimap,
+   * Transliterator)}.
+   */
+  private static Transliterator requestUniqueTransliteratorForLanguageCode(
+      String iso6392LanguageCode,
+      SetMultimap<String, Transliterator> iso6392ToLanguageMap,
+      Optional<Transliterator> defaultTransliterator) {
     final Set<Transliterator> registeredTransliterators =
         iso6392ToLanguageMap.get(iso6392LanguageCode);
     if (registeredTransliterators.size() == 1) {
       return getOnlyElement(registeredTransliterators);
     } else if (registeredTransliterators.isEmpty()) {
-      // we want to return a general transliterator instead of throwing an error
-      log.warn("No transliterators registered for {}. Transliterators are registered for {}. Using "
-              + "general transliterator instead.", iso6392LanguageCode,
-          iso6392ToLanguageMap.keySet());
-      return generalTransliterator;
+      if (defaultTransliterator.isPresent()) {
+        log.info("No custom transliterator registered for {}, using default transliterator",
+            iso6392LanguageCode);
+        return defaultTransliterator.get();
+      } else {
+        throw new RuntimeException("No transliterators registered for "
+            + iso6392LanguageCode + ". Transliterators are registered for "
+            + iso6392ToLanguageMap.keySet());
+      }
     } else {
       throw new RuntimeException("Multiple transliterators are registered for "
           + iso6392LanguageCode + ". You will need to use a custom module to "
