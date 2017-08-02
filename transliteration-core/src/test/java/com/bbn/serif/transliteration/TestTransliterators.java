@@ -62,8 +62,8 @@ public class TestTransliterators {
   }
 
   // missing: numbers. Issue #8
-  @Ignore
   @Test
+  @Ignore
   public void amharicTest() throws IOException {
     testAgainstURomanOutput(transliteratorFor("amh"), "amh");
   }
