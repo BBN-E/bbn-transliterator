@@ -598,3 +598,6 @@
 ::s ♆ ::t ♆  ::comment Neptune
 ::s ♋ ::t ♋  ::comment Cancer
 
+# Amharic - nothing here yet but dummy entry allows transliterator
+# to know we explicitly support Amharic
+::s ∞ ::t ∞  ::lcode amh ::comment infinity
