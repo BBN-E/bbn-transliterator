@@ -30,6 +30,13 @@ import static com.bbn.bue.common.parameters.Parameters.joinNamespace;
 
 /**
  * Transliterates plain text files. Run with no arguments to see usage.
+ *
+ * For safety, this will refuse to fall back on the default transliterator unless
+ * {@code com.bbn.nlp.transliteration.fallbackToDefaultTransliterator} is set to
+ * {@code true}.
+ *
+ * Note you can usually also use this on XML because the default transliterator does not
+ * alter the special characters used in XML tags and entities.
  */
 public final class RawTextTransliterator {
 
