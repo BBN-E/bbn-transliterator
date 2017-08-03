@@ -40,6 +40,9 @@ import static com.bbn.bue.common.parameters.Parameters.joinNamespace;
  * This allows the user to edit name lists using the transliteration as guidance without losing the
  * originals. This is particularly important when the transliteration scheme itself may undergo
  * changes.
+ *
+ * TODO: this code needs to be refactored with {@link RawTextTransliterator} see
+ * http://e-gitlab.bbn.com/text-group/transliteration/issues/19
  */
 public final class RawTextTransliteratorList {
 
