@@ -62,7 +62,7 @@ public final class RawTextTransliterator {
 
   public static void trueMain(String[] args) throws IOException {
     if (args.length == 2 && args[1].equals("-")) {
-      interactiveMode(args[1]);
+      interactiveMode(args[0]);
     } else if (args.length == 1 || args.length == 3) {
       nonInteractiveMode(args);
     } else {
