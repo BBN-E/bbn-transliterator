@@ -35,17 +35,21 @@ import static com.bbn.bue.common.parameters.Parameters.joinNamespace;
  * of the second
  *
  * (2) if it has only one column, move its contents to the second column and then apply (1) plain
- * text files. Run with no arguments to see usage..
+ * text files. Run with no arguments to see usage.
+ *
+ * This allows the user to edit name lists using the transliteration as guidance without losing the
+ * originals. This is particularly important when the transliteration scheme itself may undergo
+ * changes.
  */
-public final class RawTextTransliteratorVariant {
+public final class RawTextTransliteratorList {
 
-  private static final Logger log = LoggerFactory.getLogger(RawTextTransliteratorVariant.class);
+  private static final Logger log = LoggerFactory.getLogger(RawTextTransliteratorList.class);
 
   private static final String NAMESPACE = "com.bbn.nlp.transliteration";
   private static final String DEFAULT_TRANSLITERATOR_ALLOWED =
       joinNamespace(NAMESPACE, "fallbackToDefaultTransliterator");
 
-  private RawTextTransliteratorVariant() {
+  private RawTextTransliteratorList() {
     throw new UnsupportedOperationException();
   }
 
@@ -148,8 +152,13 @@ public final class RawTextTransliteratorVariant {
       final ImmutableList.Builder<String> builder = ImmutableList.builder();
 
       if (input.size() == 1) {
-        builder.add(transliterator.transliterate(unicodeFriendly(input.get(0))).utf16CodeUnits());
-        builder.add(input.get(0));
+        final String content = input.get(0);
+        if (content.trim().isEmpty() || content.startsWith("#")) {
+          // empty line and line starts with # are skipped
+        } else {
+          builder.add(transliterator.transliterate(unicodeFriendly(content)).utf16CodeUnits());
+          builder.add(content);
+        }
       } else {
         builder.add(transliterator.transliterate(unicodeFriendly(input.get(1))).utf16CodeUnits());
         builder.addAll(input.subList(1, input.size()));

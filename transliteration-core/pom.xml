@@ -29,8 +29,8 @@
                             </jvmSettings>
                         </program>
                         <program>
-                            <mainClass>com.bbn.serif.transliteration.RawTextTransliteratorVariant</mainClass>
-                            <id>rawTextTransliteratorLorelei</id>
+                            <mainClass>com.bbn.serif.transliteration.RawTextTransliteratorList</mainClass>
+                            <id>rawTextTransliteratorList</id>
                             <jvmSettings>
                                 <maxMemorySize>2g</maxMemorySize>
                             </jvmSettings>
