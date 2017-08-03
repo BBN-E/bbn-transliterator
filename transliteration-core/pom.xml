@@ -28,6 +28,13 @@
                                 <maxMemorySize>2g</maxMemorySize>
                             </jvmSettings>
                         </program>
+                        <program>
+                            <mainClass>com.bbn.serif.transliteration.RawTextTransliteratorList</mainClass>
+                            <id>rawTextTransliteratorList</id>
+                            <jvmSettings>
+                                <maxMemorySize>2g</maxMemorySize>
+                            </jvmSettings>
+                        </program>
                     </programs>
                 </configuration>
             </plugin>
