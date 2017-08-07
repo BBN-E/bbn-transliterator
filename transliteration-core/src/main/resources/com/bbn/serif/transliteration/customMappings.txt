@@ -868,3 +868,7 @@
 ::s ጿ ::t s’wa ::lcode amh
 ::s ፏ ::t fʷa ::lcode amh
 ::s ፗ ::t pʷa ::lcode amh
+
+# dummies till we have real transliterators
+::s ∞ ::t ∞  ::lcode tir
+::s ∞ ::t ∞  ::lcode ormIl5Ser
