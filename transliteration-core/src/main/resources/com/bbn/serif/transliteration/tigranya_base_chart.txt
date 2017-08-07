@@ -1,0 +1,43 @@
+Ox1350 p
+Ox1260 b
+Ox1330 p'
+Ox1218 m
+Ox1348 f
+Ox1268 v
+Ox12C8 w
+Ox1270 t
+Ox12F0 d
+Ox1320 t'
+Ox1290 n
+Ox1230 s
+Ox12D8 z
+Ox1228 r
+Ox1208 l
+# the following four characters are not used
+# in the Semiticist transliteration but just deleting
+# them seems to be a bad idea, so we use the LDC
+# transliteration
+Ox1338 ts'
+Ox1278 ch
+Ox1300 j
+Ox1328 ch'
+Ox1298 ň
+Ox1238 š
+Ox12E0 ž
+Ox12E8 y
+Ox12A8 k
+Ox12B0 kw
+Ox1308 g
+Ox1310 gw
+Ox1240 k'
+Ox1248 k'w
+Ox12B8 k
+Ox12C0 kw
+Ox1250 q
+Ox1258 qw
+Ox1210 ḥ
+Ox12D0 ‛
+Ox12A0 ’
+Ox1200 h
+Ox1280 ḫ
+Ox1288 ḫw
