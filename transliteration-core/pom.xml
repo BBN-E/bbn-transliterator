@@ -2,7 +2,7 @@
     <parent>
         <artifactId>transliteration-all</artifactId>
         <groupId>com.bbn.serif</groupId>
-        <version>1.7.0</version>
+        <version>1.7.1-SNAPSHOT</version>
         <relativePath>../pom.xml</relativePath>
     </parent>
 
