@@ -1144,6 +1144,9 @@
 ::s ጬ ::t ch'e ::lcode tir
 ::s ጭ ::t ch' ::lcode tir
 ::s ጮ ::t ch'o ::lcode tir
+# preface colon may be a strong name indicator, so we leave it alone
+::s ፦ ::t ፦ ::lcode tir
+
 
 # dummies till we have real transliterators
 ::s ∞ ::t ∞  ::lcode orm
