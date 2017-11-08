@@ -11,7 +11,7 @@ currently a hack and needs rethinking.
 
 #### Legal notes
 
-This work was funded by DARPA Contract HR0011-15-C-0013.
+This material is based upon work supported by DARPA/AFRL under Contract No. HR0011-15-C-0013
 
 The views, opinions, and/or findings expressed are those of the author(s) and should not
 be interpreted as representing the official views of policies of the Department of
